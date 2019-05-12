@@ -7,14 +7,18 @@ public class MainClass {
     public static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
+        Random rand = new Random();
         do {
-            Random rand = new Random();
+
             int x = rand.nextInt(10);
             unNumb(x);
 
 
         } while (startGame() == true);
+
+        sc.close();
     }
+
 
     public static void unNumb(int x) {
 
