@@ -40,7 +40,7 @@ public class XOGame {
             }
         }
         System.out.println("Игра закончена. Пока!");
-        sc.close(); 
+        sc.close();
     }
 
 
@@ -89,13 +89,13 @@ public class XOGame {
 
     public static void aiTurn() {
         int x, y;
-        iiBlock(DOT_X);
-        do {
+        if (iiBlock(DOT_X) == false){
             x = rand.nextInt(SIZE);
             y = rand.nextInt(SIZE);
-        } while (!isCellValid(x, y));
+
+
         System.out.println("Компьютер сделал ход " + (x + 1) + " " + (y + 1));
-        map[y][x] = DOT_O;
+        map[y][x] = DOT_O;}
     }
 
     public static boolean isMapFull() {
@@ -139,18 +139,22 @@ public class XOGame {
         return false;
     }
 
-    public static void iiBlock(char symb){
+    public static boolean iiBlock(char symb){
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < (SIZE - 2); j++) {
                 //Проверка по строкам слева на право
                 if ((map[i][j] == symb) && (map[i][j] == map[i][j + 1])) {
                    if (map[i][j+2] == DOT_EMPTY){
-                    map[i][j+2]=DOT_O;}
+                    map[i][j+2]=DOT_O;
+                       return true;
+                   }
                 }
                 //Проверка столбцов сверху вниз
                 if ((map[i][j] == symb) && (map[i][j] == map[j + 1][i])) {
                         if (map[j + 2][i] == DOT_EMPTY){
-                            map[j + 2][i]=DOT_O;}
+                            map[j + 2][i]=DOT_O;
+                            return true;
+                        }
                     }
                 }
             }
@@ -159,7 +163,9 @@ public class XOGame {
             for (int j = 0; j < (SIZE - 2); j++) {
                 if ((map[i][j] == symb) && (map[i][j] == map[i + 1][j + 1])) {
                     if (map[i + 2][j+2] == DOT_EMPTY){
-                        map[i + 2][j+2]=DOT_O;}
+                        map[i + 2][j+2]=DOT_O;
+                        return true;
+                    }
                 }
             }
         }
@@ -168,10 +174,13 @@ public class XOGame {
             for (int j = 0; j < (SIZE - 2); j++) {
                 if ((map[i][j] == symb) && (map[i][j] == map[i - 1][j + 1])) {
                     if (map[i -2][j+2] == DOT_EMPTY){
-                        map[i -2][j+2]=DOT_O;}
+                        map[i -2][j+2]=DOT_O;
+                        return true;
+                    }
                 }
             }
         }
+        return false;
     }
 
 }
