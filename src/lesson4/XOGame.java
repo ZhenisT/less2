@@ -40,7 +40,7 @@ public class XOGame {
             }
         }
         System.out.println("Игра закончена. Пока!");
-        sc.close();
+        sc.close(); 
     }
 
 
