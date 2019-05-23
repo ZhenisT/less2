@@ -1,7 +1,6 @@
 package lesson6;
 
 public class Dog extends Animal {
-    int power;
 
     public Dog() {
         super();

@@ -2,7 +2,6 @@ package lesson6;
 
 
 public class Cat extends Animal {
-    int power;
 
     public Cat() {
         super();
