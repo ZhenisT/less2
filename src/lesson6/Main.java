@@ -1,5 +1,8 @@
 package lesson6;
 
+import lesson6.Animal.Cat;
+import lesson6.Animal.Dog;
+
 public class Main {
     public static void main(String[] args) {
         Cat cat = new Cat("Мурка", "белый", 2, 1);
@@ -13,7 +16,7 @@ public class Main {
         dog.run(500);
         dog1.swim(135);
         cat.jump(2);
-        cat1.run(251);
+        cat1.run(205);
         cat.swim(100);
     }
 }

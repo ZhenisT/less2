@@ -1,4 +1,4 @@
-package lesson6;
+package lesson6.Animal;
 
 
 public class Cat extends Animal {
