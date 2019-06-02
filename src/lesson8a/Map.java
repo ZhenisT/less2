@@ -4,30 +4,28 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Random;
+
 
 public class Map extends JPanel {
     public static final int MODE_H_V_A = 0;
     public static final int MODE_H_V_H = 1;
 
 
-    char[][] field;
-    int fieldSizeX;
+    public char[][] field;
+    public static int fieldSizeX;
     int fieldSizeY;
-    int winLength;
+    public static int winLength;
     int cellHeight;
     int cellWidth;
     int cellX;
     int cellY;
-    final char DOT_X = 'X';
-    final char DOT_O = 'O';
-    final char DOT_EMPTY = '*';
 
-    static Random random = new Random();
+
     boolean isInit = false;
-    boolean humanWent = false;
+    boolean humanWent = true;
+    boolean humanWent1 = false;
     boolean gameOver = false;
-
+    String gameOverMessage = "";
 
 
     public Map() {
@@ -59,11 +57,14 @@ public class Map extends JPanel {
         this.fieldSizeY = fieldSizeY;
         this.winLength = winLength;
         field = new char[fieldSizeY][fieldSizeX];
-gameOver = false;
-
-        isInit = true;
-start();
-
+        if (mode == 0) {
+            start();
+        }
+        if (mode == 1) {
+            humanWent = true;
+            humanWent1 = false;
+            start1();
+        }
         repaint();
     }
 
@@ -100,14 +101,20 @@ start();
 
         for (int i = 0; i < fieldSizeX; i++) {
             for (int j = 0; j < fieldSizeY; j++) {
-                if (field[i][j] != DOT_EMPTY) {
-                    if (field[i][j] == 'X') {
+                if (logic.field[i][j] != logic.DOT_EMPTY) {
+                    if (logic.field[i][j] == 'X') {
                         g.drawLine((j * cellHeight), (i * cellWidth), (j + 1) * cellHeight, (i + 1) * cellWidth);
                         g.drawLine((j + 1) * cellHeight, (i * cellWidth), (j * cellHeight), (i + 1) * cellWidth);
                     }
-                    if (field[i][j] == 'O') {
+                    if (logic.field[i][j] == 'O') {
                         g.drawOval((j * cellHeight), (i * cellWidth), cellWidth, cellHeight);
                     }
+                }
+                if (gameOver) {
+
+                    g.setColor(Color.RED);
+                    g.setFont(new Font("Tahoma", 10, 40));
+                    g.drawString(gameOverMessage,(getWidth()/2)-cellHeight,(getHeight()/2));
                 }
             }
         }
@@ -117,209 +124,148 @@ start();
 
 
     public void start() {
-        initMap();
-        printMap();
+        logic.initMap();
+        logic.printMap();
         isInit = true;
         System.out.println("start...");
-        while (gameOver == false) {
 
-            humanTurn();
-            System.out.println("human turned");
-
-            if (checkWin(DOT_X)) {
-                System.out.println("Вы победитель!");
-gameOver = true;
-                return;
-            }
-
-            if (isFull()) {
-                System.out.println("Ничья");
-                gameOver = true;
-                return;
-            }
-
-            aiTurn();
-            System.out.println("ai turned");
-
-            if (checkWin(DOT_O)) {
-                System.out.println("Компьютер победил!");
-                gameOver = true;
-                return;
-            }
-
-            if (isFull()) {
-                System.out.println("Ничья");
-                gameOver = true;
-                return;
-            }
-
-
-        }
-
-    }
-
-
-    public void initMap() {
-        field = new char[fieldSizeX][fieldSizeY];
-        for (int i = 0; i < fieldSizeX; i++) {
-            for (int j = 0; j < fieldSizeY; j++) {
-                field[i][j] = DOT_EMPTY;
-            }
-        }
-    }
-
-
-    public void printMap() {
-        System.out.print("  ");
-        for (int i = 1; i <= fieldSizeX; i++) {
-            System.out.print(i + " ");
-        }
-        System.out.println();
-
-        for (int i = 0; i < fieldSizeX; i++) {
-            System.out.print(i + 1 + " ");
-            for (int j = 0; j < fieldSizeY; j++) {
-                System.out.print(field[i][j] + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    public void humanTurn() {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 int x = e.getX() / cellWidth;
                 int y = e.getY() / cellHeight;
-                if (isCellValid(x, y)) {
-                    field[y][x] = DOT_X;
+                if (logic.isCellValid(x, y)) {
+                    logic.field[y][x] = logic.DOT_X;
+                    if (logic.checkWin(logic.DOT_X)) {
+                        gameOverMessage = "Вы победитель!";
+                        gameOver = true;
+                        System.out.println("Вы победитель!");
+                        return;
+                    }
+                    if (logic.isFull()) {
+                        gameOverMessage = "Ничья";
+                        gameOver = true;
+                        System.out.println("Ничья");
+                        return;
+                    }
+
                     System.out.println(y + " " + x);
-                    printMap();
+                    logic.printMap();
                     humanWent = true;
+                    logic.aiTurn();
+                    logic.printMap();
+                    System.out.println("ai turned");
+
+                    if (logic.checkWin(logic.DOT_O)) {
+                        gameOverMessage = "Компьютер победил!";
+                        gameOver = true;
+                        System.out.println("Компьютер победил!");
+                        return;
+                    }
+
+                    if (logic.isFull()) {
+                        gameOverMessage = "Ничья";
+                        gameOver = true;
+                        System.out.println("Ничья");
+                        return;
+                    }
                 }
             }
         });
 
 
-
     }
 
-    public void aiTurn() {
+    public void start1() {
+        logic.initMap();
+        logic.printMap();
+        isInit = true;
+        System.out.println("start...");
 
-        int x = -1, y = -1;
-        for (int i = 0; i < fieldSizeX; i++) {
-            for (int j = 0; j < fieldSizeY; j++) {
-                if (isCellValid(i, j)) {
-                    field[i][j] = DOT_X;
-                    if (checkWin(DOT_X)) {
-                        x = j;
-                        y = i;
+        if (humanWent) {
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    int x = e.getX() / cellWidth;
+                    int y = e.getY() / cellHeight;
+                    if (logic.isCellValid(x, y)) {
+
+                        if (humanWent) {
+                            logic.field[y][x] = logic.DOT_O;
+                            repaint();
+                            humanWent = false;
+                            humanWent1 = true;
+                        }
+
+
+                        logic.printMap();
+                        System.out.println("Ходит игрок 1");
+
+                        if (logic.checkWin(logic.DOT_O)) {
+                            gameOverMessage = "Вы победитель! Игрок 1";
+                            gameOver = true;
+                            System.out.println("Вы победитель! Игрок 1");
+
+                            return;
+
+                        }
+                        if (logic.isFull()) {
+                            gameOverMessage = "Ничья";
+                            gameOver = true;
+                            System.out.println("Ничья");
+
+                            return;
+                        }
+
+
                     }
-                    field[i][j] = DOT_EMPTY;
                 }
-            }
+            });
+            humanWent1 = true;
         }
 
-        if (x == -1 && y == -1) {
-            do {
-                x = random.nextInt(fieldSizeX);
-                y = random.nextInt(fieldSizeY);
-            } while (!isCellValid(y, x));
-        }
 
-        field[y][x] = DOT_O;
-        humanWent = false;
-        printMap();
+        if (humanWent1) {
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    int x = e.getX() / cellWidth;
+                    int y = e.getY() / cellHeight;
+                    if (logic.isCellValid(y, x)) {
 
-    }
+                        logic.field[y][x] = logic.DOT_X;
+repaint();
+                        humanWent1 = false;
+                        humanWent = true;
+
+                        logic.printMap();
+                        System.out.println("Ходит игрок 2");
+
+                        if (logic.checkWin(logic.DOT_X)) {
+                            gameOverMessage = "Вы победитель! Игрок 2";
+                            gameOver = true;
+                            System.out.println("Вы победитель! Игрок 2");
+
+                            return;
+                        }
+                        if (logic.isFull()) {
+                            gameOverMessage = "Ничья";
+                            gameOver = true;
+                            System.out.println("Ничья");
+
+                            return;
+                        }
 
 
-
-    public boolean isCellValid(int y, int x) {
-        if (x < 0 || y < 0 || x >= fieldSizeX || y >= fieldSizeY) {
-            return false;
-        }
-        return field[y][x] == DOT_EMPTY;
-    }
-
-    public boolean isFull() {
-        int k = 0;
-        for (int i = 0; i < fieldSizeX; i++) {
-            for (int j = 0; j < fieldSizeY; j++) {
-                if (field[i][j] == DOT_EMPTY) {
-                    k++;
+                    }
                 }
-            }
+
+            });
+            humanWent = true;
         }
-        return k == 0;
     }
-
-    public boolean checkWin(char symbol) {
-
-        for (int i = 0; i < fieldSizeX; i++) {
-            for (int j = 0; j < fieldSizeY; j++) {
-                if (checkGorizont(i, j, symbol) || checkVertical(i, j, symbol)
-                        || checkDiogonal1(i, j, symbol) || checkDiogonal2(i, j, symbol)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public boolean checkGorizont(int x, int y, char symbol) {
-        if (x < 0 || y < 0 || x + winLength > fieldSizeX) {
-            return false;
-        }
-        int k = 0;
-        for (int i = 0; i < winLength; i++) {
-            if (field[i + x][y] == symbol) {
-                k++;
-            }
-        }
-        return k == winLength;
-    }
-
-    public boolean checkVertical(int x, int y, char symbol) {
-        if (x < 0 || y < 0 || y + winLength > fieldSizeY) {
-            return false;
-        }
-        int k = 0;
-        for (int i = 0; i < winLength; i++) {
-            if (field[x][y + i] == symbol) {
-                k++;
-            }
-        }
-        return k == winLength;
-    }
-
-    public boolean checkDiogonal1(int x, int y, char symbol) {
-        if (x < 0 || y < 0 || x + winLength > fieldSizeX || y + winLength > fieldSizeY) {
-            return false;
-        }
-        int k = 0;
-        for (int i = 0; i < winLength; i++) {
-            if (field[x + i][y + i] == symbol) {
-                k++;
-            }
-        }
-        return k == winLength;
-    }
-
-    public boolean checkDiogonal2(int x, int y, char symbol) {
-        if (x < 0 || x + winLength > fieldSizeY || y + 1 - winLength < 0) {
-            return false;
-        }
-        int k = 0;
-        for (int i = 0; i < winLength; i++) {
-            if (field[x + i][y - i] == symbol) {
-                k++;
-            }
-        }
-        return k == winLength;
-    }
-
 }
 
